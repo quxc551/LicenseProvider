@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.IO;
 
 namespace 服务端
 {
@@ -23,7 +24,14 @@ namespace 服务端
         /// <returns>序列号</returns>
         public string Registe(string userName,string password,string type)
         {
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            string serialNumber="";
+            for (int i = 0; i < 10; ++i)
+                serialNumber += new Random().Next(1, 9).ToString();
+            StreamWriter streamWriter = new StreamWriter("UserData.txt");
+            streamWriter.WriteLine(serialNumber + "," + userName + "," + password + "," + type);
+            streamWriter.Close();
+            return serialNumber;
         }
 
         /// <summary>
