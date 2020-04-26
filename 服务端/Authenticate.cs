@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
+using System.IO;
 
 namespace 服务端
 {
@@ -24,11 +25,14 @@ namespace 服务端
         /// <returns>序列号</returns>
         public string Registe(string userName, string password, string type)
         {
-            /*
-             * 由type(比如十人许可、五十人许可)生成一个由 10 个数字组成的序列号，双向加密
-             */
-
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            string serialNumber="";
+            for (int i = 0; i < 10; ++i)
+                serialNumber += new Random().Next(1, 9).ToString();
+            StreamWriter streamWriter = new StreamWriter("UserData.txt");
+            streamWriter.WriteLine(serialNumber + "," + userName + "," + password + "," + type);
+            streamWriter.Close();
+            return serialNumber;
         }
 
         /// <summary>
