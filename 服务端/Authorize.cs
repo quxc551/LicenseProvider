@@ -1,13 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace 服务端
 {
     struct UserInfo
     {
-        string userName;
-        Guid userID;
+        public string userName; 
+        public Guid userID;
+
+        // 这是我私自加的、用于检验令牌是否过期
+        public int iat;
+        public int exp;
     }
 
     /// <summary>
@@ -27,7 +32,11 @@ namespace 服务端
         /// <returns>是否取得授权</returns>
         public bool GetAuthorization(string token)
         {
-            throw new NotImplementedException();
+            if (VerifyToken(token)) 
+                return TryAuthorize(DecodeToken(token));
+
+            // 令牌无效
+            return false;
         }
 
         /// <summary>
@@ -37,7 +46,20 @@ namespace 服务端
         /// <returns>是否有效</returns>
         private bool VerifyToken(string token)
         {
-            throw new NotImplementedException();
+            String[] s = token.Split(".");
+
+            // 由head和payload再次生成signature
+            String encodedS = s[0] + '.' + s[1];
+            var hs256 = new HMACSHA256(System.Text.Encoding.Default.GetBytes(secret));
+            byte[] hashmessage = hs256.ComputeHash(System.Text.Encoding.Default.GetBytes(encodedS));
+            String temp = "";
+            for (int i = 0; i < hashmessage.Length; i++)
+            {
+                temp += hashmessage[i].ToString("X2");
+            }
+
+            // 比较自带signature和生成的signature
+            return s[2].Equals(temp);
         }
 
         /// <summary>
@@ -47,7 +69,19 @@ namespace 服务端
         /// <returns>用户信息</returns>
         private UserInfo DecodeToken(string token)
         {
-            throw new NotImplementedException();
+            // 获取序列化的payload
+            String[] s = token.Split(".");
+            String temp = Encoding.ASCII.GetString(Convert.FromBase64String(s[1]));
+            dynamic payload = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(temp);
+
+            // 从payload中获取信息
+            UserInfo u = new UserInfo();
+
+            /*
+             * 这里还需要获取guid
+             */
+
+            return u;
         }
 
         /// <summary>
@@ -57,6 +91,14 @@ namespace 服务端
         /// <returns>是否授权成功</returns>
         private bool TryAuthorize(UserInfo userInfo)
         {
+            /*
+             * 这里应该先验证令牌是否过期
+             */
+
+            /*
+             * 然后检查授权数是否达到上限
+             */
+
             throw new NotImplementedException();
         }
 
@@ -69,7 +111,20 @@ namespace 服务端
         /// <returns></returns>
         public string MakeNewToken(string part1,string part2,string secret)
         {
-            throw new NotImplementedException();
+            String head = Convert.ToBase64String(Encoding.ASCII.GetBytes(part1)); // JWT中的head
+            String payload = Convert.ToBase64String(Encoding.ASCII.GetBytes(part2)); // JWT中的payload
+            String encryptString = head + '.' + payload; // 签名由head+'.'+payload生成
+
+            // hs256生成signature
+            var hs256 = new HMACSHA256(System.Text.Encoding.Default.GetBytes(secret));
+            byte[] encrypt = hs256.ComputeHash(System.Text.Encoding.Default.GetBytes(encryptString));
+            String signature = "";
+            for (int i = 0; i < encrypt.Length; i++)
+            {
+                signature += encrypt[i].ToString("X2");
+            }
+
+            return encryptString + '.' + signature;
         }
     }
 }
