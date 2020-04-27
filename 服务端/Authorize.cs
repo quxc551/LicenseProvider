@@ -23,7 +23,7 @@ namespace 服务端
         /// <summary>
         /// 服务器端的秘钥
         /// </summary>
-        private string secret;
+        private string secret = "75012";
 
         /// <summary>
         /// 给予验证身份后的用户使用授权
@@ -46,7 +46,7 @@ namespace 服务端
         /// <returns>是否有效</returns>
         private bool VerifyToken(string token)
         {
-            String[] s = token.Split(".");
+            string[] s = token.Split(".");
 
             // 由head和payload再次生成signature
             String encodedS = s[0] + '.' + s[1];

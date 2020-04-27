@@ -16,6 +16,5 @@ namespace 服务端
         {
             InitializeComponent();
         }
-
     }
 }
