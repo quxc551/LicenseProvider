@@ -46,7 +46,7 @@ namespace 服务端
         /// <returns>是否有效</returns>
         private bool VerifyToken(string token)
         {
-            string[] s = token.Split(".");
+            string[] s = token.Split('.');
 
             // 由head和payload再次生成signature
             String encodedS = s[0] + '.' + s[1];
@@ -70,7 +70,7 @@ namespace 服务端
         private UserInfo DecodeToken(string token)
         {
             // 获取序列化的payload
-            String[] s = token.Split(".");
+            String[] s = token.Split('.');
             String temp = Encoding.ASCII.GetString(Convert.FromBase64String(s[1]));
             dynamic payload = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(temp);
 

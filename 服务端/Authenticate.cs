@@ -35,8 +35,9 @@ namespace 服务端
         private string secret = "75012";
         private List<UserData> users;
 
-        Authenticate()
+        public Authenticate()
         {
+            if (!File.Exists("RegistedUser.db")) File.Create("RegistedUser.db");
             StreamReader reader= new StreamReader("RegistedUser.db");
             while(!reader.EndOfStream)
             {
@@ -107,7 +108,7 @@ namespace 服务端
         public void UDPListener(object obj)
         {
             byte[] recvBuffer = new byte[1024];
-            IPEndPoint ip = new IPEndPoint(IPAddress.Parse("192.168.18.3"), 8888);
+            IPEndPoint ip = new IPEndPoint(IPAddress.Parse("192.168.18.3"), 8910);
             client.Receive(ref ip);
             OnDataRecv CallBack = obj as OnDataRecv;
             CallBack(recvBuffer);
@@ -115,7 +116,7 @@ namespace 服务端
 
         public void ProcessData(byte[] data)
         {
-            IPEndPoint ip = new IPEndPoint(IPAddress.Parse("192.168.18.3"), 6000);
+            IPEndPoint ip = new IPEndPoint(IPAddress.Loopback, 6000);
             string userinfo = data.ToString();
             string[] arr = userinfo.Split('\0');
             byte[] sendbuffer = Encoding.Default.GetBytes(Registe(arr[0], arr[1], arr[2]));

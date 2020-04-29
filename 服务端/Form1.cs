@@ -12,9 +12,13 @@ namespace 服务端
 {
     public partial class Form1 : Form
     {
+        private Authenticate authenticate;
+        private Authorize authorize;
         public Form1()
         {
             InitializeComponent();
+            authenticate = new Authenticate();
+            authorize = new Authorize();
         }
     }
 }
