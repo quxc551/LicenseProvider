@@ -9,7 +9,7 @@ using System.Threading;
 using Newtonsoft.Json;
 using WebApplication1;
 
-namespace 服务端
+namespace WebApplication1
 {
     public struct UserData
     {
@@ -29,7 +29,7 @@ namespace 服务端
     /// <summary>
     /// 验证用户身份
     /// </summary>
-    public class Authenticate:IAuthenticate
+    public class Authenticate
     {
         public delegate void OnDataRecv(byte[] data);
         private UdpClient client = new UdpClient(8910, AddressFamily.InterNetwork);

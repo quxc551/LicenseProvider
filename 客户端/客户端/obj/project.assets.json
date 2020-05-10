@@ -8,17 +8,21 @@
     ".NETCoreApp,Version=v3.1": []
   },
   "packageFolders": {
-    "C:\\Users\\yuyua\\.nuget\\packages\\": {}
+    "C:\\Users\\yuyua\\.nuget\\packages\\": {},
+    "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\yuyua\\Desktop\\计网项目三\\客户端\\客户端\\客户端.csproj",
+      "projectUniqueName": "D:\\计网项目\\LicenseProvider\\客户端\\客户端\\客户端.csproj",
       "projectName": "客户端",
-      "projectPath": "C:\\Users\\yuyua\\Desktop\\计网项目三\\客户端\\客户端\\客户端.csproj",
+      "projectPath": "D:\\计网项目\\LicenseProvider\\客户端\\客户端\\客户端.csproj",
       "packagesPath": "C:\\Users\\yuyua\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\yuyua\\Desktop\\计网项目三\\客户端\\客户端\\obj\\",
+      "outputPath": "D:\\计网项目\\LicenseProvider\\客户端\\客户端\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+      ],
       "configFilePaths": [
         "C:\\Users\\yuyua\\AppData\\Roaming\\NuGet\\NuGet.Config",
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"

@@ -1,18 +1,21 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\yuyua\\Desktop\\WebApplication1\\WebApplication1\\WebApplication1.csproj": {}
+    "D:\\计网项目\\LicenseProvider\\WebApplication1\\WebApplication1\\WebApplication1.csproj": {}
   },
   "projects": {
-    "C:\\Users\\yuyua\\Desktop\\WebApplication1\\WebApplication1\\WebApplication1.csproj": {
+    "D:\\计网项目\\LicenseProvider\\WebApplication1\\WebApplication1\\WebApplication1.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\yuyua\\Desktop\\WebApplication1\\WebApplication1\\WebApplication1.csproj",
+        "projectUniqueName": "D:\\计网项目\\LicenseProvider\\WebApplication1\\WebApplication1\\WebApplication1.csproj",
         "projectName": "WebApplication1",
-        "projectPath": "C:\\Users\\yuyua\\Desktop\\WebApplication1\\WebApplication1\\WebApplication1.csproj",
+        "projectPath": "D:\\计网项目\\LicenseProvider\\WebApplication1\\WebApplication1\\WebApplication1.csproj",
         "packagesPath": "C:\\Users\\yuyua\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\yuyua\\Desktop\\WebApplication1\\WebApplication1\\obj\\",
+        "outputPath": "D:\\计网项目\\LicenseProvider\\WebApplication1\\WebApplication1\\obj\\",
         "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
+        ],
         "configFilePaths": [
           "C:\\Users\\yuyua\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
