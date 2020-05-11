@@ -8,15 +8,6 @@ using System.Net.Sockets;
 
 namespace WebApplication1
 {
-    struct UserInfo
-    {
-        public string userName; 
-        public Guid userID;
-
-        // 这是我私自加的、用于检验令牌是否过期
-        public DateTime iat;
-        public int exp;
-    }
 
     /// <summary>
     /// 对客户端的请求进行授权
