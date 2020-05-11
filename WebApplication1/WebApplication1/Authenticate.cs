@@ -142,7 +142,7 @@ namespace WebApplication1
                 string part2 = Convert.ToBase64String(Encoding.Default.GetBytes(JsonConvert.SerializeObject(payload)));
                 string res = part1 + part2 + secret;
                 HMACSHA256 maker = new HMACSHA256();
-                string signature = maker.ComputeHash(Encoding.Default.GetBytes(res)).ToString();
+                string signature = Encoding.Default.GetString(maker.ComputeHash(Encoding.Default.GetBytes(res)));
                 return part1 + part2 + signature;
             }
         }
