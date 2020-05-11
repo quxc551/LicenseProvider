@@ -6,7 +6,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 
-namespace 服务端
+namespace WebApplication1
 {
     struct UserInfo
     {

@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
-using 服务端;
 
 namespace WebApplication1.Controllers
 {
@@ -20,12 +19,13 @@ namespace WebApplication1.Controllers
         //private Authenticate authenticate = new Authenticate();
         //授权
         //private Authorize authorize = new Authorize();
-        public IServiceProvider provider;
         public Authenticate authenticate;
+        public Authorize authorize;
 
-        public ServiceController(IServiceProvider provider,IHttpContextAccessor httpContextAccessor,Authenticate authenticate):base(httpContextAccessor)
+        public ServiceController(Authorize authorize, IHttpContextAccessor httpContextAccessor,Authenticate authenticate):base(httpContextAccessor)
         {
             this.authenticate = authenticate;
+            this.authorize = authorize;
             authenticate.Registe("1", "1", "1");
         }
 
@@ -33,6 +33,8 @@ namespace WebApplication1.Controllers
         [Route("~/api/mine")]
         public ActionResult Get()
         {
+            var x = Payload;
+            authenticate.Registe("1", "1", "1");
             var rng = new Random();
             return Ok(new
             {

@@ -9,7 +9,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using ·þÎñ¶Ë;
 
 namespace WebApplication1
 {
@@ -28,10 +27,12 @@ namespace WebApplication1
             services.AddHttpContextAccessor();
             services.AddControllers().AddNewtonsoftJson();
             services.AddSingleton<Authenticate, Authenticate>();
+            services.AddSingleton<Authorize, Authorize>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env,IAuthenticate authenticate)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env,
+            Authenticate authenticate, Authorize authorize)
         {
             if (env.IsDevelopment())
             {
