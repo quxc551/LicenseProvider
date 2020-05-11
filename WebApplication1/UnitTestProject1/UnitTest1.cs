@@ -12,6 +12,12 @@ namespace UnitTestProject1
         public void Write()
         {
             UserRuntime userRuntime = new UserRuntime();
+            UserInfo user;
+            user.expiringTime = DateTime.Now.AddDays(1);
+            user.userID = Guid.NewGuid();
+            user.userName = "songrunhan";
+            userRuntime.AuthorizeUser(user);
+
             userRuntime.WriteToFile();
         }
 

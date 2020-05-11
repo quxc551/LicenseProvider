@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -21,22 +22,19 @@ namespace WebApplication1
 
         public UserRuntime(string filePath = "DataFile.dat")
         {
+
         }
 
         public void ReadFromFile(string filePath= "DataFile.dat")
         {
-            FileStream fs = new FileStream("DataFile.dat", FileMode.Open);
-            BinaryFormatter formatter = new BinaryFormatter();
-            object o = formatter.Deserialize(fs);
+            string json = File.ReadAllText(filePath);
+            object o = JsonConvert.DeserializeObject<Dictionary<string, List<UserInfo>>>(json);
             userList = (Dictionary<string, List<UserInfo>>)o;
-            fs.Close();
         }
         public void WriteToFile(string filePath = "DataFile.dat")
         {
-            FileStream fs = new FileStream("DataFile.dat", FileMode.Create);
-            BinaryFormatter formatter = new BinaryFormatter();
-            formatter.Serialize(fs, userList);
-            fs.Close();
+            string json = JsonConvert.SerializeObject(userList);
+            File.WriteAllText(filePath, json);
         }
         public bool AuthorizeUser(UserInfo userInfo)
         {
