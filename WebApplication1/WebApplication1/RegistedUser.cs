@@ -25,7 +25,7 @@ namespace WebApplication1
             object o = JsonConvert.DeserializeObject<Dictionary<string, RegRecord>>(json);
             regDic = (Dictionary<string, RegRecord>)o;
         }
-        public void WriteToFile(string filePath = "DataFile.dat")
+        public void WriteToFile(string filePath = "RegData.dat")
         {
             string json = JsonConvert.SerializeObject(regDic);
             File.WriteAllText(filePath, json);

@@ -6,7 +6,7 @@ using WebApplication1;
 namespace UnitTestProject1
 {
     [TestClass]
-    public class Test
+    public class TestUserRuntime
     {
         [TestMethod("写入到文件")]
         public void Write()
@@ -69,5 +69,41 @@ namespace UnitTestProject1
             Assert.IsFalse(userRuntime.AuthorizeUser(user));
         }
 
+    }
+
+    [TestClass]
+    public class TestRegistedUser
+    {
+        [TestMethod("写入到文件")]
+        public void Write()
+        {
+            RegistedUser registedUser = new RegistedUser();
+            RegRecord regRecord;
+            regRecord.password = "123456";
+            regRecord.serialNumber = "1234567845";
+            regRecord.type = 1;
+            regRecord.userName = "songrunhan";
+            registedUser.Add(regRecord);
+            registedUser.WriteToFile();
+        }
+
+        [TestMethod("从文件读取")]
+        public void Read()
+        {
+            RegistedUser registedUser = new RegistedUser();
+            registedUser.ReadFromFile();
+        }
+
+        [TestMethod("正确用户")]
+        public void AU()
+        {
+            RegistedUser registedUser = new RegistedUser();
+            RegRecord regRecord;
+            regRecord.password = "123456";
+            regRecord.serialNumber = "1234567845";
+            regRecord.type = 1;
+            regRecord.userName = "songrunhan";
+            registedUser.Add(regRecord);
+        }
     }
 }
