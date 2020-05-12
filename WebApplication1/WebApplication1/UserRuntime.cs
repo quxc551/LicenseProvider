@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 [Serializable]
 public struct UserInfo
 {
+    public DateTime expiringTime;
     public string userName;
     public Guid userID;
-    public DateTime expiringTime;
 }
 
 namespace WebApplication1
@@ -27,9 +27,12 @@ namespace WebApplication1
 
         public void ReadFromFile(string filePath= "DataFile.dat")
         {
-            string json = File.ReadAllText(filePath);
-            object o = JsonConvert.DeserializeObject<Dictionary<string, List<UserInfo>>>(json);
-            userList = (Dictionary<string, List<UserInfo>>)o;
+            if (File.Exists(filePath))
+            {
+                string json = File.ReadAllText(filePath);
+                object o = JsonConvert.DeserializeObject<Dictionary<string, List<UserInfo>>>(json);
+                userList = (Dictionary<string, List<UserInfo>>)o;
+            }
         }
         public void WriteToFile(string filePath = "DataFile.dat")
         {

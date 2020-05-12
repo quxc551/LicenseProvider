@@ -5,9 +5,33 @@ using System.Text;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading;
 
 namespace WebApplication1
 {
+
+    public class ClientMessage2
+    {
+        /// <summary>
+        /// 客户端地址信息
+        /// </summary>
+        /// 
+        public IPEndPoint clientIPEndPoint;
+
+        /// <summary>
+        /// 客户端发来的令牌信息
+        /// </summary>
+        /// 
+        public string token;
+
+        /// <param name="point"></param>
+        public ClientMessage2(IPEndPoint point, string message)
+        {
+            clientIPEndPoint = new IPEndPoint(point.Address, point.Port);
+            token = message;
+        }
+    }
+
 
     /// <summary>
     /// 对客户端的请求进行授权
@@ -19,22 +43,44 @@ namespace WebApplication1
         /// </summary>
         private string secret = "75012";
         private UdpClient client = new UdpClient(8888, AddressFamily.InterNetwork);
+        private UserRuntime userRuntime = new UserRuntime();
 
-        //从客户端获得令牌
-        public string getToken()
+        public Authorize()
         {
-            byte[] recvBuffer = new byte[1024];
-            IPEndPoint ip = new IPEndPoint(IPAddress.Parse("192.168.18.3"), 6000);
-            recvBuffer = client.Receive(ref ip);
-            return Encoding.Default.GetString(recvBuffer);
+            userRuntime.ReadFromFile();
+            userRuntime.WriteToFile();
+            Thread th = new Thread(UdpListener);
+            th.Start();
         }
 
+
+        //从客户端获得令牌
+        public ClientMessage2 getToken()
+        {
+            byte[] recvBuffer = new byte[1024];
+            IPEndPoint ip = new IPEndPoint(IPAddress.Any, 0);
+            recvBuffer = client.Receive(ref ip);
+            ClientMessage2 message = new ClientMessage2(ip, Encoding.Default.GetString(recvBuffer));
+            return message;
+        }
+
+        //监听发来的令牌消息
+        public void UdpListener()
+        {
+            while (true)
+            {
+                ClientMessage2 message = getToken();
+                SendResult(message);
+            }
+        }
+
+
         //发送授权结果给客户端
-        public void SendResult()
+       public void SendResult(ClientMessage2 clientMessage)
         {
             byte[] sendBuffer = Encoding.Default.GetBytes("true");
-            IPEndPoint ip = new IPEndPoint(IPAddress.Parse("192.168.18.3"), 6000);
-            if (GetAuthorization(getToken()))
+            IPEndPoint ip = clientMessage.clientIPEndPoint;
+            if (GetAuthorization(clientMessage.token))
                 client.Send(sendBuffer, sendBuffer.Length, ip);
             else
             {
@@ -50,7 +96,7 @@ namespace WebApplication1
         /// <returns>是否取得授权</returns>
         public bool GetAuthorization(string token)
         {
-            if (VerifyToken(token)) 
+            if (token!=""&&VerifyToken(token)) 
                 return TryAuthorize(DecodeToken(token));
 
             // 令牌无效
@@ -67,17 +113,20 @@ namespace WebApplication1
             string[] s = token.Split('.');
 
             // 由head和payload再次生成signature
-            string encodedS = s[0] + '.' + s[1];
-            var hs256 = new HMACSHA256(System.Text.Encoding.Default.GetBytes(secret));
-            byte[] hashmessage = hs256.ComputeHash(System.Text.Encoding.Default.GetBytes(encodedS));
-            string temp = "";
-            for (int i = 0; i < hashmessage.Length; i++)
-            {
-                temp += hashmessage[i].ToString("X2");
-            }
+            string encodedS = s[0]  + s[1];
+
+            HMACSHA256 maker = new HMACSHA256(System.Text.Encoding.Default.GetBytes(secret));
+            string signature = Encoding.Default.GetString(maker.ComputeHash(Encoding.Default.GetBytes(encodedS)));
+            //var hs256 = new HMACSHA256(System.Text.Encoding.Default.GetBytes(secret));
+            //byte[] hashmessage = hs256.ComputeHash(System.Text.Encoding.Default.GetBytes(encodedS));
+            //string temp = "";
+            //for (int i = 0; i < hashmessage.Length; i++)
+            //{
+            //    temp += hashmessage[i].ToString("X2");
+            //}
 
             // 比较自带signature和生成的signature
-            return s[2].Equals(temp);
+            return s[2].Equals(signature);
         }
 
         /// <summary>
@@ -94,11 +143,9 @@ namespace WebApplication1
 
             // 从payload中获取信息
             UserInfo u = new UserInfo();
-            u = payload;
-            /*
-             * 这里还需要获取guid
-             */
-
+            u.expiringTime = payload.iat;
+            u.userName = payload.userName;
+            u.userID = payload.id;
             return u;
         }
 
@@ -109,23 +156,21 @@ namespace WebApplication1
         /// <returns>是否授权成功</returns>
         private bool TryAuthorize(UserInfo userInfo)
         {
-            /*
-             * 这里应该先验证令牌是否过期
-             */
 
-
-            /*
-             * 然后检查授权数是否达到上限
-             */
             //以授权用户为10个人为例
-            StreamReader reader = new StreamReader("D:\\AuthorizationData.txt");
-            while (!reader.EndOfStream)
-            {
-                string[] AutRecord = reader.ReadLine().Split('\0');
-                if (AutRecord[0].Equals(userInfo.userName) && AutRecord.Length < 11)
-                    return true;
-            }
-            return false;
+            userRuntime.ReadFromFile();
+            bool a=userRuntime.AuthorizeUser(userInfo);
+            userRuntime.WriteToFile();
+
+            return a;
+            //StreamReader reader = new StreamReader("D:\\AuthorizationData.txt");
+            //while (!reader.EndOfStream)
+            //{
+            //    string[] AutRecord = reader.ReadLine().Split('\0');
+            //    if (AutRecord[0].Equals(userInfo.userName) && AutRecord.Length < 11)
+            //        return true;
+            //}
+            //return false;
             //throw new NotImplementedException();
         }
 
