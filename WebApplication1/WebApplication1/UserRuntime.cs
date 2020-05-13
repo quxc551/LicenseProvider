@@ -93,12 +93,12 @@ namespace WebApplication1
         public void DeleteSubUser(UserInfo userInfo)
         {
             ReadFromFile();
-            if (userList.ContainsKey(userInfo.userName))
+            if (userDic.ContainsKey(userInfo.userName))
             {
-                int index = userList[userInfo.userName].FindIndex(e => e.userID == userInfo.userID);
+                int index = userDic[userInfo.userName].FindIndex(e => e.userID == userInfo.userID);
                 if(index>-1)
                 {
-                    userList[userInfo.userName].RemoveAt(index);
+                    userDic[userInfo.userName].RemoveAt(index);
                 }
             }
             WriteToFile();
@@ -108,12 +108,12 @@ namespace WebApplication1
         public void UpdateUserState(UserInfo userInfo)
         {
             ReadFromFile();
-            if (userList.ContainsKey(userInfo.userName))
+            if (userDic.ContainsKey(userInfo.userName))
             {
-                int index = userList[userInfo.userName].FindIndex(e => e.userID == userInfo.userID);
+                int index = userDic[userInfo.userName].FindIndex(e => e.userID == userInfo.userID);
                 if (index > -1)
                 {
-                    userList[userInfo.userName][index].changestate();
+                    userDic[userInfo.userName][index].changestate();
                 }
             }
 
@@ -122,9 +122,9 @@ namespace WebApplication1
         }
         public void DeleteUser(string userName)
         {
-            if(userList.ContainsKey(userName))
+            if(userDic.ContainsKey(userName))
             {
-                userList.Remove(userName);
+                userDic.Remove(userName);
             }
         }
         /// <summary>
@@ -133,7 +133,7 @@ namespace WebApplication1
         public void clean()
         {
             ReadFromFile();
-            foreach(List<UserInfo> userInfos in userList.Values)
+            foreach(List<UserInfo> userInfos in userDic.Values)
             {
                 for(int i=userInfos.Count-1;i>0;i--)
                 {

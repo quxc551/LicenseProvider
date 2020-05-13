@@ -26,7 +26,7 @@ namespace WebApplication1.Controllers
         {
             this.authenticate = authenticate;
             this.authorize = authorize;
-            authenticate.Registe("1", "1", "1");
+            authenticate.Registe("1", "1", 1);
         }
 
         [HttpPost]
@@ -34,7 +34,7 @@ namespace WebApplication1.Controllers
         public ActionResult Get()
         {
             var x = Payload;
-            authenticate.Registe("1", "1", "1");
+            authenticate.Registe("1", "1", 1);
             var rng = new Random();
             return Ok(new
             {
