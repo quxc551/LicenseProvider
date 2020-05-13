@@ -43,6 +43,17 @@ namespace WebApplication1.Controllers
                 );
         }
 
+        [HttpPost]
+        [Route("~/api/GetUserList")]
+        public ActionResult GetUserList()
+        {
+            return Ok(new
+            {
+                success = true,
+                msg = "",
+                data = authorize.GetUserList()
+            });
+        }
     }
 
 }
