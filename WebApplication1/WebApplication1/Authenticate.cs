@@ -85,23 +85,25 @@ namespace WebApplication1
         /// <param name="password">密码</param>
         /// <param name="type">许可证类型</param>
         /// <returns>序列号</returns>
-        public string Registe(string userName, string password, string type)
+        public string Registe(string userName, string password, int type)
         {
+            if(registedUser.ContainsUserName(userName))
+            {
+                return "用户已存在";
+            }
+            
             string serialNumber = string.Empty;
-            for (int i = 0; i < 10; ++i)
-                serialNumber += new Random().Next(1, 9).ToString();
+            do
+            {
+                for (int i = 0; i < 10; ++i)
+                    serialNumber += new Random().Next(1, 9).ToString();
 
-            RegRecord regRecord1 = new RegRecord(userName, password, serialNumber, int.Parse(type));
+            } while (registedUser.Contains(serialNumber));
+            RegRecord regRecord1 = new RegRecord(userName, password, serialNumber, type);
             registedUser.ReadFromFile();
             registedUser.Add(regRecord1);
             registedUser.WriteToFile();
 
-            //string[] regRecord = { serialNumber, userName, password, type };
-            //users.Add(new UserData(regRecord));
-            //FileStream fs = new FileStream("RUser.db", FileMode.Append, FileAccess.Write, FileShare.ReadWrite);
-            //StreamWriter writer = new StreamWriter(fs);
-            //writer.WriteLine(serialNumber + '\0' + userName + '\0' + password + '\0' + type);
-            //writer.Close();
             return serialNumber;
         }
 
@@ -242,6 +244,16 @@ namespace WebApplication1
                 token = "";
             byte[] sendbuffer = Encoding.Default.GetBytes(token);
             client.Send(sendbuffer, sendbuffer.Length, iP);
+        }
+
+        public string GetUserInfo()
+        {
+            return registedUser.GetAllinfo();
+        }
+
+        public string DeleteUser(string serialNumber)
+        {
+            return registedUser.Remove(serialNumber);
         }
     }
 }

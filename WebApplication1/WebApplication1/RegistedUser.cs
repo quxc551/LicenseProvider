@@ -46,9 +46,16 @@ namespace WebApplication1
         {
             regDic.Add(regRecord.serialNumber, regRecord);
         }
-        public void Remove(RegRecord regRecord)
+        public string Remove(string serialNumber)
         {
-            regDic.Remove(regRecord.serialNumber);
+            if (regDic.ContainsKey(serialNumber))
+            {
+                regDic.Remove(serialNumber);
+                return "成功删除";
+            }
+            else
+                return "不存在此用户";
+
         }
         public RegRecord GetUser(string serialNumber)
         {
@@ -58,6 +65,26 @@ namespace WebApplication1
         public bool Contains(string serialNumber)
         {
             return regDic.ContainsKey(serialNumber);
+        }
+
+        public bool ContainsUserName(string userName)
+        {
+            ReadFromFile();
+            foreach(RegRecord regRecord in regDic.Values)
+            {
+                if(regRecord.userName.Equals(userName))
+                {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        public string GetAllinfo()
+        {
+            ReadFromFile();
+            string json = JsonConvert.SerializeObject(regDic);
+            return json;
         }
     }
 }
