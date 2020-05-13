@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 
@@ -13,6 +14,13 @@ public struct UserInfo
     public DateTime expiringTime;
     public string userName;
     public Guid userID;
+    public DateTime lastupdate;
+    
+    public void changestate()
+    {
+        lastupdate = DateTime.Now;
+
+    }
 }
 
 namespace WebApplication1
@@ -23,7 +31,7 @@ namespace WebApplication1
 
         public UserRuntime(string filePath = "DataFile.dat")
         {
-
+            
         }
         public string GetUserList()
         {
@@ -80,6 +88,64 @@ namespace WebApplication1
                 userDic.Add(userInfo.userName, temp);
                 return true;
             }
+        }
+
+        public void DeleteSubUser(UserInfo userInfo)
+        {
+            ReadFromFile();
+            if (userList.ContainsKey(userInfo.userName))
+            {
+                int index = userList[userInfo.userName].FindIndex(e => e.userID == userInfo.userID);
+                if(index>-1)
+                {
+                    userList[userInfo.userName].RemoveAt(index);
+                }
+            }
+            WriteToFile();
+
+        }
+
+        public void UpdateUserState(UserInfo userInfo)
+        {
+            ReadFromFile();
+            if (userList.ContainsKey(userInfo.userName))
+            {
+                int index = userList[userInfo.userName].FindIndex(e => e.userID == userInfo.userID);
+                if (index > -1)
+                {
+                    userList[userInfo.userName][index].changestate();
+                }
+            }
+
+            WriteToFile();
+
+        }
+        public void DeleteUser(string userName)
+        {
+            if(userList.ContainsKey(userName))
+            {
+                userList.Remove(userName);
+            }
+        }
+        /// <summary>
+        /// 清楚令牌超时和长时间未更新状态的用户
+        /// </summary>
+        public void clean()
+        {
+            ReadFromFile();
+            foreach(List<UserInfo> userInfos in userList.Values)
+            {
+                for(int i=userInfos.Count-1;i>0;i--)
+                {
+                    if(userInfos[i].expiringTime>DateTime.Now||userInfos[i].lastupdate.AddMinutes(30)<DateTime.Now)
+                    {
+                        userInfos.Remove(userInfos[i]);
+                    }
+                }
+            }
+            WriteToFile();
+
+
         }
     }
 }

@@ -6,6 +6,7 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.ComponentModel;
 
 namespace WebApplication1
 {
@@ -41,16 +42,20 @@ namespace WebApplication1
         /// <summary>
         /// 服务器端的秘钥
         /// </summary>
+
         private string secret = "75012";
         private UdpClient client = new UdpClient(8888, AddressFamily.InterNetwork);
         private UserRuntime userRuntime = new UserRuntime();
-
+        private DateTime lastUpdateTime;
         public Authorize()
         {
+            lastUpdateTime = DateTime.Now;
             userRuntime.ReadFromFile();
             userRuntime.WriteToFile();
-            Thread th = new Thread(UdpListener);
-            th.Start();
+            Thread th1 = new Thread(UdpListener);
+            Thread th2 = new Thread(CleanUser);
+            th1.Start();
+            th2.Start();
         }
 
 
@@ -70,10 +75,30 @@ namespace WebApplication1
             while (true)
             {
                 ClientMessage2 message = getToken();
-                SendResult(message);
+                ProcessMsg(message);
             }
         }
 
+        public void ProcessMsg(ClientMessage2 message)
+        {
+            char type = message.token[0];
+            string Realtoken = message.token.Remove(0, 2);
+            if(type=='1')
+            {
+                message.token = Realtoken;
+                SendResult(message);
+            }
+            if(type=='2')
+            {
+                DeleteSubUser(message.token);
+            }
+            if(type=='3')
+            {
+                UpdateUser(message.token);
+            }
+
+
+        }
 
         //发送授权结果给客户端
        public void SendResult(ClientMessage2 clientMessage)
@@ -146,6 +171,7 @@ namespace WebApplication1
             u.expiringTime = payload.iat;
             u.userName = payload.userName;
             u.userID = payload.id;
+            u.lastupdate = DateTime.Now;
             return u;
         }
 
@@ -172,6 +198,34 @@ namespace WebApplication1
             //}
             //return false;
             //throw new NotImplementedException();
+        }
+
+        //删除停止运行软件的子用户
+        private void DeleteSubUser(string token)
+        {
+            if (token != "" && VerifyToken(token))
+            {
+                UserInfo userInfo = DecodeToken(token);
+                userRuntime.DeleteSubUser(userInfo);
+            }
+        }
+
+        public void UpdateUser(string token)
+        {
+            if (token != "" && VerifyToken(token))
+            {
+                UserInfo userInfo= DecodeToken(token);
+                userRuntime.UpdateUserState(userInfo);
+            }
+        }
+
+        public void CleanUser()
+        {
+            while(true)
+            {
+                userRuntime.clean();
+                Thread.CurrentThread.Join(60000);
+            }
         }
 
         /// <summary>
