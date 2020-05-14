@@ -13,13 +13,7 @@ public struct UserInfo
     public DateTime expiringTime;
     public string userName;
     public Guid userID;
-    public DateTime lastupdate;
-    
-    public void changestate()
-    {
-        lastupdate = DateTime.Now;
 
-    }
 }
 
 namespace WebApplication1
@@ -49,6 +43,7 @@ namespace WebApplication1
         }
         public bool AuthorizeUser(UserInfo userInfo)
         {
+            clean();//首先清除过期的令牌用户
             if (userInfo.expiringTime < DateTime.Now) return false;
             //检查该用户名的用户组是否有授权
             if(userList.ContainsKey(userInfo.userName))
@@ -99,15 +94,16 @@ namespace WebApplication1
 
         }
 
-        public void UpdateUserState(UserInfo userInfo)
+        public void UpdateUserState(UserInfo userInfo1,UserInfo userinfo2)
         {
             ReadFromFile();
-            if (userList.ContainsKey(userInfo.userName))
+            if (userList.ContainsKey(userInfo1.userName))
             {
-                int index = userList[userInfo.userName].FindIndex(e => e.userID == userInfo.userID);
+                int index = userList[userInfo1.userName].FindIndex(e => e.userID == userInfo1.userID);
                 if (index > -1)
                 {
-                    userList[userInfo.userName][index].changestate();
+                    userList[userInfo1.userName].RemoveAt(index);
+                    userList[userinfo2.userName].Add(userinfo2);
                 }
             }
 
@@ -122,7 +118,7 @@ namespace WebApplication1
             }
         }
         /// <summary>
-        /// 清楚令牌超时和长时间未更新状态的用户
+        /// 清楚令牌超时的用户
         /// </summary>
         public void clean()
         {
@@ -131,7 +127,7 @@ namespace WebApplication1
             {
                 for(int i=userInfos.Count-1;i>0;i--)
                 {
-                    if(userInfos[i].expiringTime>DateTime.Now||userInfos[i].lastupdate.AddMinutes(30)<DateTime.Now)
+                    if(userInfos[i].expiringTime<DateTime.Now)
                     {
                         userInfos.Remove(userInfos[i]);
                     }
