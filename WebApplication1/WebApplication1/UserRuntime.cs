@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,20 +13,14 @@ public struct UserInfo
     public DateTime expiringTime;
     public string userName;
     public Guid userID;
-    public DateTime lastupdate;
-    
-    public void changestate()
-    {
-        lastupdate = DateTime.Now;
 
-    }
 }
 
 namespace WebApplication1
 {
     public class UserRuntime
     {
-        private Dictionary<string, List<UserInfo>> userDic = new Dictionary<string, List<UserInfo>>();
+        private Dictionary<string, List<UserInfo>> userList = new Dictionary<string, List<UserInfo>>();
 
         public UserRuntime(string filePath = "DataFile.dat")
         {
@@ -35,43 +28,43 @@ namespace WebApplication1
         }
         public string GetUserList()
         {
-            string json = JsonConvert.SerializeObject(userDic.Values.ToArray());
+            string json = JsonConvert.SerializeObject(userList.Values.ToArray());
             return json;
         }
-
         public void ReadFromFile(string filePath= "DataFile.dat")
         {
             if (File.Exists(filePath))
             {
                 string json = File.ReadAllText(filePath);
                 object o = JsonConvert.DeserializeObject<Dictionary<string, List<UserInfo>>>(json);
-                userDic = (Dictionary<string, List<UserInfo>>)o;
+                userList = (Dictionary<string, List<UserInfo>>)o;
             }
         }
         public void WriteToFile(string filePath = "DataFile.dat")
         {
-            string json = JsonConvert.SerializeObject(userDic);
+            string json = JsonConvert.SerializeObject(userList);
             File.WriteAllText(filePath, json);
         }
         public bool AuthorizeUser(UserInfo userInfo)
         {
+            clean();//首先清除过期的令牌用户
             if (userInfo.expiringTime < DateTime.Now) return false;
             //检查该用户名的用户组是否有授权
-            if(userDic.ContainsKey(userInfo.userName))
+            if(userList.ContainsKey(userInfo.userName))
             {
                 //检查该用户是否已经被授权
-                int index = userDic[userInfo.userName].FindIndex(e => e.userID == userInfo.userID);
+                int index = userList[userInfo.userName].FindIndex(e => e.userID == userInfo.userID);
                 if (index > -1)
                 {
-                    userDic[userInfo.userName][index] = userInfo;
+                    userList[userInfo.userName][index] = userInfo;
                     return true;
                 }
                 else
                 {
                     //看授权数是否已满
-                    if (userDic[userInfo.userName].Count < 10)
+                    if (userList[userInfo.userName].Count < 10)
                     {
-                        userDic[userInfo.userName].Add(userInfo);
+                        userList[userInfo.userName].Add(userInfo);
                         return true;
                     }
                     else
@@ -85,7 +78,7 @@ namespace WebApplication1
             {
                 List<UserInfo> temp = new List<UserInfo>();
                 temp.Add(userInfo);
-                userDic.Add(userInfo.userName, temp);
+                userList.Add(userInfo.userName, temp);
                 return true;
             }
         }
@@ -93,27 +86,28 @@ namespace WebApplication1
         public void DeleteSubUser(UserInfo userInfo)
         {
             ReadFromFile();
-            if (userDic.ContainsKey(userInfo.userName))
+            if (userList.ContainsKey(userInfo.userName))
             {
-                int index = userDic[userInfo.userName].FindIndex(e => e.userID == userInfo.userID);
+                int index = userList[userInfo.userName].FindIndex(e => e.userID == userInfo.userID);
                 if(index>-1)
                 {
-                    userDic[userInfo.userName].RemoveAt(index);
+                    userList[userInfo.userName].RemoveAt(index);
                 }
             }
             WriteToFile();
 
         }
 
-        public void UpdateUserState(UserInfo userInfo)
+        public void UpdateUserState(UserInfo userInfo1,UserInfo userinfo2)
         {
             ReadFromFile();
-            if (userDic.ContainsKey(userInfo.userName))
+            if (userList.ContainsKey(userInfo1.userName))
             {
-                int index = userDic[userInfo.userName].FindIndex(e => e.userID == userInfo.userID);
+                int index = userList[userInfo1.userName].FindIndex(e => e.userID == userInfo1.userID);
                 if (index > -1)
                 {
-                    userDic[userInfo.userName][index].changestate();
+                    userList[userInfo1.userName].RemoveAt(index);
+                    userList[userinfo2.userName].Add(userinfo2);
                 }
             }
 
@@ -122,22 +116,22 @@ namespace WebApplication1
         }
         public void DeleteUser(string userName)
         {
-            if(userDic.ContainsKey(userName))
+            if(userList.ContainsKey(userName))
             {
-                userDic.Remove(userName);
+                userList.Remove(userName);
             }
         }
         /// <summary>
-        /// 清楚令牌超时和长时间未更新状态的用户
+        /// 清楚令牌超时的用户
         /// </summary>
         public void clean()
         {
             ReadFromFile();
-            foreach(List<UserInfo> userInfos in userDic.Values)
+            foreach(List<UserInfo> userInfos in userList.Values)
             {
                 for(int i=userInfos.Count-1;i>0;i--)
                 {
-                    if(userInfos[i].expiringTime>DateTime.Now||userInfos[i].lastupdate.AddMinutes(30)<DateTime.Now)
+                    if(userInfos[i].expiringTime<DateTime.Now)
                     {
                         userInfos.Remove(userInfos[i]);
                     }
