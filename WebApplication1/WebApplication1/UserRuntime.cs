@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -26,11 +27,16 @@ namespace WebApplication1
 {
     public class UserRuntime
     {
-        private Dictionary<string, List<UserInfo>> userList = new Dictionary<string, List<UserInfo>>();
+        private Dictionary<string, List<UserInfo>> userDic = new Dictionary<string, List<UserInfo>>();
 
         public UserRuntime(string filePath = "DataFile.dat")
         {
             
+        }
+        public string GetUserList()
+        {
+            string json = JsonConvert.SerializeObject(userDic.Values.ToArray());
+            return json;
         }
 
         public void ReadFromFile(string filePath= "DataFile.dat")
@@ -39,33 +45,33 @@ namespace WebApplication1
             {
                 string json = File.ReadAllText(filePath);
                 object o = JsonConvert.DeserializeObject<Dictionary<string, List<UserInfo>>>(json);
-                userList = (Dictionary<string, List<UserInfo>>)o;
+                userDic = (Dictionary<string, List<UserInfo>>)o;
             }
         }
         public void WriteToFile(string filePath = "DataFile.dat")
         {
-            string json = JsonConvert.SerializeObject(userList);
+            string json = JsonConvert.SerializeObject(userDic);
             File.WriteAllText(filePath, json);
         }
         public bool AuthorizeUser(UserInfo userInfo)
         {
             if (userInfo.expiringTime < DateTime.Now) return false;
             //检查该用户名的用户组是否有授权
-            if(userList.ContainsKey(userInfo.userName))
+            if(userDic.ContainsKey(userInfo.userName))
             {
                 //检查该用户是否已经被授权
-                int index = userList[userInfo.userName].FindIndex(e => e.userID == userInfo.userID);
+                int index = userDic[userInfo.userName].FindIndex(e => e.userID == userInfo.userID);
                 if (index > -1)
                 {
-                    userList[userInfo.userName][index] = userInfo;
+                    userDic[userInfo.userName][index] = userInfo;
                     return true;
                 }
                 else
                 {
                     //看授权数是否已满
-                    if (userList[userInfo.userName].Count < 10)
+                    if (userDic[userInfo.userName].Count < 10)
                     {
-                        userList[userInfo.userName].Add(userInfo);
+                        userDic[userInfo.userName].Add(userInfo);
                         return true;
                     }
                     else
@@ -79,7 +85,7 @@ namespace WebApplication1
             {
                 List<UserInfo> temp = new List<UserInfo>();
                 temp.Add(userInfo);
-                userList.Add(userInfo.userName, temp);
+                userDic.Add(userInfo.userName, temp);
                 return true;
             }
         }
@@ -87,12 +93,12 @@ namespace WebApplication1
         public void DeleteSubUser(UserInfo userInfo)
         {
             ReadFromFile();
-            if (userList.ContainsKey(userInfo.userName))
+            if (userDic.ContainsKey(userInfo.userName))
             {
-                int index = userList[userInfo.userName].FindIndex(e => e.userID == userInfo.userID);
+                int index = userDic[userInfo.userName].FindIndex(e => e.userID == userInfo.userID);
                 if(index>-1)
                 {
-                    userList[userInfo.userName].RemoveAt(index);
+                    userDic[userInfo.userName].RemoveAt(index);
                 }
             }
             WriteToFile();
@@ -102,12 +108,12 @@ namespace WebApplication1
         public void UpdateUserState(UserInfo userInfo)
         {
             ReadFromFile();
-            if (userList.ContainsKey(userInfo.userName))
+            if (userDic.ContainsKey(userInfo.userName))
             {
-                int index = userList[userInfo.userName].FindIndex(e => e.userID == userInfo.userID);
+                int index = userDic[userInfo.userName].FindIndex(e => e.userID == userInfo.userID);
                 if (index > -1)
                 {
-                    userList[userInfo.userName][index].changestate();
+                    userDic[userInfo.userName][index].changestate();
                 }
             }
 
@@ -116,9 +122,9 @@ namespace WebApplication1
         }
         public void DeleteUser(string userName)
         {
-            if(userList.ContainsKey(userName))
+            if(userDic.ContainsKey(userName))
             {
-                userList.Remove(userName);
+                userDic.Remove(userName);
             }
         }
         /// <summary>
@@ -127,7 +133,7 @@ namespace WebApplication1
         public void clean()
         {
             ReadFromFile();
-            foreach(List<UserInfo> userInfos in userList.Values)
+            foreach(List<UserInfo> userInfos in userDic.Values)
             {
                 for(int i=userInfos.Count-1;i>0;i--)
                 {

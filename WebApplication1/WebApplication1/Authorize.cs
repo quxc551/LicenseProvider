@@ -252,5 +252,10 @@ namespace WebApplication1
 
             return encryptString + '.' + signature;
         }
+
+        public string GetUserList()
+        {
+            return userRuntime.GetUserList();
+        }
     }
 }
