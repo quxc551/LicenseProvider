@@ -53,7 +53,9 @@ namespace WebApplication1
             userRuntime.ReadFromFile();
             userRuntime.WriteToFile();
             Thread th1 = new Thread(UdpListener);
+            Thread th2 = new Thread(CleanUser);
             th1.Start();
+            th2.Start();
         }
 
 
@@ -81,16 +83,16 @@ namespace WebApplication1
         {
             char type = message.token[0];
             string Realtoken = message.token.Remove(0, 2);
-            if(type=='1')//请求授权信号
+            if(type=='1')
             {
                 message.token = Realtoken;
                 SendResult(message);
             }
-            if(type=='2')//收到正常结束信号
+            if(type=='2')
             {
                 DeleteSubUser(message.token);
             }
-            if(type=='3')//用户更新信号
+            if(type=='3')
             {
                 UpdateUser(message.token);
             }
@@ -140,7 +142,13 @@ namespace WebApplication1
 
             HMACSHA256 maker = new HMACSHA256(System.Text.Encoding.Default.GetBytes(secret));
             string signature = Encoding.Default.GetString(maker.ComputeHash(Encoding.Default.GetBytes(encodedS)));
-
+            //var hs256 = new HMACSHA256(System.Text.Encoding.Default.GetBytes(secret));
+            //byte[] hashmessage = hs256.ComputeHash(System.Text.Encoding.Default.GetBytes(encodedS));
+            //string temp = "";
+            //for (int i = 0; i < hashmessage.Length; i++)
+            //{
+            //    temp += hashmessage[i].ToString("X2");
+            //}
 
             // 比较自带signature和生成的signature
             return s[2].Equals(signature);
@@ -163,6 +171,7 @@ namespace WebApplication1
             u.expiringTime = payload.iat;
             u.userName = payload.userName;
             u.userID = payload.id;
+            u.lastupdate = DateTime.Now;
             return u;
         }
 
@@ -191,7 +200,7 @@ namespace WebApplication1
             //throw new NotImplementedException();
         }
 
-        //删除的子用户
+        //删除停止运行软件的子用户
         private void DeleteSubUser(string token)
         {
             if (token != "" && VerifyToken(token))
@@ -203,26 +212,21 @@ namespace WebApplication1
 
         public void UpdateUser(string token)
         {
-            string []msgs = token.Split(".");
-            string token1;
-            string token2;
-            if (msgs.Length == 5)
+            if (token != "" && VerifyToken(token))
             {
-                token1 = $"{msgs[0]}.{msgs[1]}.{msgs[2]}";
-                token2 = $"{msgs[3]}.{msgs[4]}.{msgs[5]}";
-                if (VerifyToken(token1) && VerifyToken(token2))
-                {
-                    UserInfo userInfo1 = DecodeToken(token1);
-
-                    UserInfo userInfo2 = DecodeToken(token2);
-                    userRuntime.UpdateUserState(userInfo1,userInfo2);
-                }
-
+                UserInfo userInfo= DecodeToken(token);
+                userRuntime.UpdateUserState(userInfo);
             }
-
         }
 
-
+        public void CleanUser()
+        {
+            while(true)
+            {
+                userRuntime.clean();
+                Thread.CurrentThread.Join(60000);
+            }
+        }
 
         /// <summary>
         /// 生成新令牌
