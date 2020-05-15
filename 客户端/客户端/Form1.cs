@@ -23,9 +23,9 @@ namespace 客户端
 
         private void button1_Click(object sender, EventArgs e)
         {
-            //客户端发送注册信息
-            IPEndPoint ip = new IPEndPoint(IPAddress.Parse("192.168.18.3"), 8910);
-            string regMsg = "songrunhan" + '\0' + "123456" + '\0' + "normal";
+            string[] ipAndPort = textBox1.Text.Split(':');
+            IPEndPoint ip = new IPEndPoint(IPAddress.Parse(ipAndPort[0]), int.Parse(ipAndPort[1]));
+            string regMsg = textBox3.Text;
             byte[] msg = Encoding.Default.GetBytes(regMsg);
             client.Send(msg, msg.Length, ip);
             //客户端从身份验证服务器接收序列号

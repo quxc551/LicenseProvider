@@ -33,7 +33,7 @@ namespace WebApplication1
             {
                 string json = File.ReadAllText(filePath);
                 object o = JsonConvert.DeserializeObject<Dictionary<string, RegRecord>>(json);
-                regDic = (Dictionary<string, RegRecord>)o;
+                regDic = (Dictionary<string, RegRecord>)o ?? new Dictionary<string, RegRecord>();
             }
 
         }
@@ -69,21 +69,16 @@ namespace WebApplication1
 
         public bool ContainsUserName(string userName)
         {
-            ReadFromFile();
-            foreach(RegRecord regRecord in regDic.Values)
+            foreach(RegRecord record in regDic.Values)
             {
-                if(regRecord.userName.Equals(userName))
-                {
-                    return false;
-                }
+                if (record.userName == userName) return true;
             }
-            return true;
+            return false;
         }
 
         public string GetAllinfo()
         {
-            ReadFromFile();
-            string json = JsonConvert.SerializeObject(regDic);
+            string json = JsonConvert.SerializeObject(regDic.Values);
             return json;
         }
     }

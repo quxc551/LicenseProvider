@@ -2,8 +2,9 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFrameworks>net472;netcoreapp3.1</TargetFrameworks>
     <UseWindowsForms>true</UseWindowsForms>
+    <UserSecretsId>8dd34193-b7c5-4861-9154-e87df1ee3678</UserSecretsId>
   </PropertyGroup>
 
 </Project>

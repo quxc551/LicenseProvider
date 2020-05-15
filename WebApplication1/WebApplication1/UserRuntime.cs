@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,7 +8,6 @@ using System.Net.NetworkInformation;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 
-[Serializable]
 public struct UserInfo
 {
     public DateTime expiringTime;
@@ -26,10 +26,14 @@ namespace WebApplication1
         {
             
         }
-        public string GetUserList()
+        public List<UserInfo> GetUserList()
         {
-            string json = JsonConvert.SerializeObject(userList.Values.ToArray());
-            return json;
+            List<UserInfo> temp = new List<UserInfo>();
+            foreach(var value in userList.Values)
+            {
+                temp.AddRange(value);
+            }
+            return temp;
         }
         public void ReadFromFile(string filePath= "DataFile.dat")
         {

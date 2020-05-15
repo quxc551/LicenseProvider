@@ -59,21 +59,8 @@ namespace WebApplication1
 
         public Authenticate()
         {
-            //string a = Registe("wang", "1", "1");
-           // FileStream fs = new FileStream("RUser.db", FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite);
-            //StreamReader reader= new StreamReader(fs);
             registedUser.ReadFromFile();
-            registedUser.WriteToFile();
 
-            //registedUser.ReadFromFile();
-            //while(!reader.EndOfStream)
-            //{
-            //    string regRecord = reader.ReadLine();
-            //    users.Add(new UserData(regRecord.Split('\0')));
-            //}
-
-
-            // OnDataRecv callback = new OnDataRecv(ProcessData);
             Thread th = new Thread(UDPListener);
             th.Start();
         }
@@ -100,7 +87,6 @@ namespace WebApplication1
 
             } while (registedUser.Contains(serialNumber));
             RegRecord regRecord1 = new RegRecord(userName, password, serialNumber, type);
-            registedUser.ReadFromFile();
             registedUser.Add(regRecord1);
             registedUser.WriteToFile();
 
