@@ -24,7 +24,7 @@ namespace WebApplication1
 
         public UserRuntime(string filePath = "DataFile.dat")
         {
-            
+            ReadFromFile(filePath);
         }
         public List<UserInfo> GetUserList()
         {
@@ -34,6 +34,10 @@ namespace WebApplication1
                 temp.AddRange(value);
             }
             return temp;
+        }
+        public int UserCountByName(string name)
+        {
+            return userList.ContainsKey(name) ? userList[name].Count : 0;
         }
         public void ReadFromFile(string filePath= "DataFile.dat")
         {
@@ -89,7 +93,6 @@ namespace WebApplication1
 
         public void DeleteSubUser(UserInfo userInfo)
         {
-            ReadFromFile();
             if (userList.ContainsKey(userInfo.userName))
             {
                 int index = userList[userInfo.userName].FindIndex(e => e.userID == userInfo.userID);
@@ -99,12 +102,10 @@ namespace WebApplication1
                 }
             }
             WriteToFile();
-
         }
 
         public void UpdateUserState(UserInfo userInfo1,UserInfo userinfo2)
         {
-            ReadFromFile();
             if (userList.ContainsKey(userInfo1.userName))
             {
                 int index = userList[userInfo1.userName].FindIndex(e => e.userID == userInfo1.userID);
@@ -114,9 +115,7 @@ namespace WebApplication1
                     userList[userinfo2.userName].Add(userinfo2);
                 }
             }
-
             WriteToFile();
-
         }
         public void DeleteUser(string userName)
         {
@@ -130,7 +129,6 @@ namespace WebApplication1
         /// </summary>
         public void clean()
         {
-            ReadFromFile();
             foreach(List<UserInfo> userInfos in userList.Values)
             {
                 for(int i=userInfos.Count-1;i>0;i--)
@@ -142,8 +140,6 @@ namespace WebApplication1
                 }
             }
             WriteToFile();
-
-
         }
     }
 }

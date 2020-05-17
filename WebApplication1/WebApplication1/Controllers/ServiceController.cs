@@ -30,6 +30,36 @@ namespace WebApplication1.Controllers
             this.authorize = authorize;
         }
 
+        [HttpGet]
+        [Route("~/api/test")]
+        public ActionResult Test()
+        {
+            return Ok(new
+            {
+                success = true,
+                msg = "测试成功"
+            });
+        }
+
+        [HttpPost]
+        [Route("~/api/getLicenseStatus")]
+        public ActionResult GetLicenseStatus()
+        {
+            List<RegRecord> records = authenticate.GetUserInfo();
+            return Ok(new
+            {
+                success = true,
+                msg = "",
+                data = records.Select(e => new
+                {
+                    e.userName,
+                    e.serialNumber,
+                    usingCount = authorize.UserCountByName(e.userName),
+                    licenseCount = 10
+                })
+            });
+        }
+
         [HttpPost]
         [Route("~/api/regist")]
         public ActionResult GetToRegist()
@@ -62,16 +92,14 @@ namespace WebApplication1.Controllers
 
         [HttpPost]
         [Route("~/api/getRegList")]
-
         public ActionResult GetRegistInfo()
         {
-            string AllUser = authenticate.GetUserInfo();
             return Ok(new
             {
                 success = true,
                 msg = "注册信息",
-                data = JArray.Parse(AllUser)
-            }
+                data = authenticate.GetUserInfo()
+        }
             );
         }
 

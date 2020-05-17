@@ -232,7 +232,7 @@ namespace WebApplication1
             client.Send(sendbuffer, sendbuffer.Length, iP);
         }
 
-        public string GetUserInfo()
+        public List<RegRecord> GetUserInfo()
         {
             return registedUser.GetAllinfo();
         }

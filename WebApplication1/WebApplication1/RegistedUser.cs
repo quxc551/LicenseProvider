@@ -27,6 +27,10 @@ namespace WebApplication1
     {
         private Dictionary<string, RegRecord> regDic = new Dictionary<string, RegRecord>();
 
+        public RegistedUser()
+        {
+            ReadFromFile();
+        }
         public void ReadFromFile(string filePath = "RegData.dat")
         {
             if (File.Exists(filePath))
@@ -45,21 +49,25 @@ namespace WebApplication1
         public void Add(RegRecord regRecord)
         {
             regDic.Add(regRecord.serialNumber, regRecord);
+            WriteToFile();
         }
         public string Remove(string serialNumber)
         {
             if (regDic.ContainsKey(serialNumber))
             {
                 regDic.Remove(serialNumber);
+                WriteToFile();
                 return "成功删除";
             }
             else
+            {
+                WriteToFile();
                 return "不存在此用户";
-
+            }
         }
         public RegRecord GetUser(string serialNumber)
         {
-                return regDic[serialNumber];
+            return regDic[serialNumber];
         }
 
         public bool Contains(string serialNumber)
@@ -76,10 +84,9 @@ namespace WebApplication1
             return false;
         }
 
-        public string GetAllinfo()
+        public List<RegRecord> GetAllinfo()
         {
-            string json = JsonConvert.SerializeObject(regDic.Values);
-            return json;
+            return regDic.Values.ToList();
         }
     }
 }

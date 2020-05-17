@@ -98,6 +98,10 @@ namespace WebApplication1
 
         }
 
+        public int UserCountByName(string name)
+        {
+            return userRuntime.UserCountByName(name);
+        }
         //发送授权结果给客户端
        public void SendResult(ClientMessage2 clientMessage)
         {
