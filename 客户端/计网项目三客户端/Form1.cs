@@ -28,32 +28,34 @@ namespace 计网项目三客户端
         private void button1_Click(object sender, EventArgs e)
         {
             //IPEndPoint（）中如果第一个参数用IPAddress.Any，我的电脑会报错，然后网上说换成本机的具体ip就可。
-            IPEndPoint ip2 = new IPEndPoint(IPAddress.Parse("192.168.0.101"), 8910);
-            IPEndPoint ip3 = new IPEndPoint(IPAddress.Parse("192.168.0.101"), 8888);
+            IPEndPoint ip_recvFrom = new IPEndPoint(IPAddress.Any, 0);
+            IPEndPoint ip2 = new IPEndPoint(IPAddress.Parse("192.168.18.3"), 8910);
+            IPEndPoint ip3 = new IPEndPoint(IPAddress.Parse("192.168.18.3"), 8888);
             byte[] msg = new byte[1024];
-            //客户端从身份验证服务器接收序列号
-            msg = Encoding.UTF8.GetBytes("6272452318");
+            //发送序列号至身份验证服务器
+            string serialNumber = textBox2.Text == string.Empty ? "4852433483" : textBox2.Text;
+            msg = Encoding.UTF8.GetBytes(serialNumber);
             client.Send(msg, msg.Length, ip2);
 
             //客户端从身份验证服务器接收令牌
-            msg = client.Receive(ref ip2);
-            //s1没什么作用就是方便测试时查看msg的值
-            string s1 = Encoding.UTF8.GetString(msg);
-            //textBox也有大作用，就是方便测试是查看JWT的传输
-            textBox1.Text = Encoding.UTF8.GetString(msg);
+            msg = client.Receive(ref ip_recvFrom);
+            textBox1.Text += $"时间：{DateTime.Now}\t来自{ip_recvFrom}的回应：\n";
+            textBox1.Text += Encoding.UTF8.GetString(msg);
+            textBox1.Text += "\n";
+
             //再将令牌发送给授权服务器
             msg = Encoding.UTF8.GetBytes("1." + Encoding.UTF8.GetString(msg));
             client.Send(msg, msg.Length, ip3);
-            //客户端接收授权服务器验证结果
-            msg = client.Receive(ref ip3);
-
+            msg = client.Receive(ref ip_recvFrom);
+            textBox1.Text += $"时间：{DateTime.Now} 来自{ip_recvFrom}的回应：\n";
+            textBox1.Text += Encoding.UTF8.GetString(msg) + "\n";
 
             //弹窗显示结果
-            if (Encoding.UTF8.GetString(msg).Equals("true"))
+            if (Encoding.UTF8.GetString(msg) == "true")
             {
                 MessageBox.Show("授权成功！", "授权提示");
             }
-            else if (Encoding.UTF8.GetString(msg).Equals("false"))
+            else
             {
                 MessageBox.Show("授权失败！", "授权提示");
             }

@@ -15,7 +15,7 @@ namespace WebApplication1
         public string serialNumber;
         public int type;
 
-        public RegRecord(string Name,string word,string Number,int types)
+        public RegRecord(string Name, string word, string Number, int types)
         {
             userName = Name;
             password = word;
@@ -77,7 +77,7 @@ namespace WebApplication1
 
         public bool ContainsUserName(string userName)
         {
-            foreach(RegRecord record in regDic.Values)
+            foreach (RegRecord record in regDic.Values)
             {
                 if (record.userName == userName) return true;
             }
