@@ -38,6 +38,7 @@ namespace WebApplication1
             {
                 app.UseDeveloperExceptionPage();
             }
+            app.UseStaticFiles();
 
             app.UseRouting();
 

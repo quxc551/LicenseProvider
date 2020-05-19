@@ -7,6 +7,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.ComponentModel;
+using Newtonsoft.Json;
 
 namespace WebApplication1
 {
@@ -81,16 +82,16 @@ namespace WebApplication1
         {
             char type = message.token[0];
             string Realtoken = message.token.Remove(0, 2);
-            if(type=='1')//请求授权信号
+            if (type == '1')//请求授权信号
             {
                 message.token = Realtoken;
                 SendResult(message);
             }
-            if(type=='2')//收到正常结束信号
+            if (type == '2')//收到正常结束信号
             {
                 DeleteSubUser(message.token);
             }
-            if(type=='3')//用户更新信号
+            if (type == '3')//用户更新信号
             {
                 UpdateUser(message.token);
             }
@@ -98,8 +99,12 @@ namespace WebApplication1
 
         }
 
+        public int UserCountByName(string name)
+        {
+            return userRuntime.UserCountByName(name);
+        }
         //发送授权结果给客户端
-       public void SendResult(ClientMessage2 clientMessage)
+        public void SendResult(ClientMessage2 clientMessage)
         {
             byte[] sendBuffer = Encoding.Default.GetBytes("true");
             IPEndPoint ip = clientMessage.clientIPEndPoint;
@@ -119,7 +124,7 @@ namespace WebApplication1
         /// <returns>是否取得授权</returns>
         public bool GetAuthorization(string token)
         {
-            if (token!=""&&VerifyToken(token)) 
+            if (token != "" && VerifyToken(token))
                 return TryAuthorize(DecodeToken(token));
 
             // 令牌无效
@@ -136,14 +141,14 @@ namespace WebApplication1
             string[] s = token.Split('.');
 
             // 由head和payload再次生成signature
-            string encodedS = s[0]  + s[1];
+            string encodedS = $"{s[0]}.{s[1]}";
 
-            HMACSHA256 maker = new HMACSHA256(System.Text.Encoding.Default.GetBytes(secret));
-            string signature = Encoding.Default.GetString(maker.ComputeHash(Encoding.Default.GetBytes(encodedS)));
+            HMACSHA256 maker = new HMACSHA256(Encoding.UTF8.GetBytes(secret));
+            string signature = Convert.ToBase64String(maker.ComputeHash(Encoding.UTF8.GetBytes(encodedS)));
 
 
             // 比较自带signature和生成的signature
-            return s[2].Equals(signature);
+            return s[2] == signature;
         }
 
         /// <summary>
@@ -154,15 +159,17 @@ namespace WebApplication1
         private UserInfo DecodeToken(string token)
         {
             // 获取序列化的payload
-            String[] s = token.Split('.');
-            String temp = Encoding.ASCII.GetString(Convert.FromBase64String(s[1]));
-            dynamic payload = Newtonsoft.Json.JsonConvert.DeserializeObject<dynamic>(temp);
+            string[] s = token.Split('.');
+            string temp = Encoding.UTF8.GetString(Convert.FromBase64String(s[1]));
+            dynamic payload = JsonConvert.DeserializeObject<dynamic>(temp);
 
             // 从payload中获取信息
-            UserInfo u = new UserInfo();
-            u.expiringTime = payload.iat;
-            u.userName = payload.userName;
-            u.userID = payload.id;
+            UserInfo u = new UserInfo
+            {
+                expiringTime = payload.exp,
+                userName = payload.aud,
+                userID = payload.jti
+            };
             return u;
         }
 
@@ -173,22 +180,10 @@ namespace WebApplication1
         /// <returns>是否授权成功</returns>
         private bool TryAuthorize(UserInfo userInfo)
         {
-
             //以授权用户为10个人为例
-            userRuntime.ReadFromFile();
-            bool a=userRuntime.AuthorizeUser(userInfo);
+            bool success = userRuntime.AuthorizeUser(userInfo);
             userRuntime.WriteToFile();
-
-            return a;
-            //StreamReader reader = new StreamReader("D:\\AuthorizationData.txt");
-            //while (!reader.EndOfStream)
-            //{
-            //    string[] AutRecord = reader.ReadLine().Split('\0');
-            //    if (AutRecord[0].Equals(userInfo.userName) && AutRecord.Length < 11)
-            //        return true;
-            //}
-            //return false;
-            //throw new NotImplementedException();
+            return success;
         }
 
         //删除的子用户
@@ -203,7 +198,7 @@ namespace WebApplication1
 
         public void UpdateUser(string token)
         {
-            string []msgs = token.Split(".");
+            string[] msgs = token.Split(".");
             string token1;
             string token2;
             if (msgs.Length == 5)
@@ -215,14 +210,12 @@ namespace WebApplication1
                     UserInfo userInfo1 = DecodeToken(token1);
 
                     UserInfo userInfo2 = DecodeToken(token2);
-                    userRuntime.UpdateUserState(userInfo1,userInfo2);
+                    userRuntime.UpdateUserState(userInfo1, userInfo2);
                 }
 
             }
 
         }
-
-
 
         /// <summary>
         /// 生成新令牌
@@ -231,16 +224,16 @@ namespace WebApplication1
         /// <param name="part2"></param>
         /// <param name="secret"></param>
         /// <returns></returns>
-        public string MakeNewToken(string part1,string part2,string secret)
+        public string MakeNewToken(string part1, string part2, string secret)
         {
-            String head = Convert.ToBase64String(Encoding.ASCII.GetBytes(part1)); // JWT中的head
-            String payload = Convert.ToBase64String(Encoding.ASCII.GetBytes(part2)); // JWT中的payload
-            String encryptString = head + '.' + payload; // 签名由head+'.'+payload生成
+            string head = Convert.ToBase64String(Encoding.UTF8.GetBytes(part1)); // JWT中的head
+            string payload = Convert.ToBase64String(Encoding.UTF8.GetBytes(part2)); // JWT中的payload
+            string encryptString = head + '.' + payload; // 签名由head+'.'+payload生成
 
             // hs256生成signature
-            var hs256 = new HMACSHA256(System.Text.Encoding.Default.GetBytes(secret));
-            byte[] encrypt = hs256.ComputeHash(System.Text.Encoding.Default.GetBytes(encryptString));
-            String signature = "";
+            var hs256 = new HMACSHA256(Encoding.UTF8.GetBytes(secret));
+            byte[] encrypt = hs256.ComputeHash(Encoding.UTF8.GetBytes(encryptString));
+            string signature = "";
             for (int i = 0; i < encrypt.Length; i++)
             {
                 signature += encrypt[i].ToString("X2");
@@ -248,7 +241,7 @@ namespace WebApplication1
 
             return encryptString + '.' + signature;
         }
-        public string GetUserList()
+        public List<UserInfo> GetUserList()
         {
             return userRuntime.GetUserList();
         }

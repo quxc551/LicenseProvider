@@ -15,7 +15,7 @@ namespace WebApplication1
         public string serialNumber;
         public int type;
 
-        public RegRecord(string Name,string word,string Number,int types)
+        public RegRecord(string Name, string word, string Number, int types)
         {
             userName = Name;
             password = word;
@@ -27,13 +27,17 @@ namespace WebApplication1
     {
         private Dictionary<string, RegRecord> regDic = new Dictionary<string, RegRecord>();
 
+        public RegistedUser()
+        {
+            ReadFromFile();
+        }
         public void ReadFromFile(string filePath = "RegData.dat")
         {
             if (File.Exists(filePath))
             {
                 string json = File.ReadAllText(filePath);
                 object o = JsonConvert.DeserializeObject<Dictionary<string, RegRecord>>(json);
-                regDic = (Dictionary<string, RegRecord>)o;
+                regDic = (Dictionary<string, RegRecord>)o ?? new Dictionary<string, RegRecord>();
             }
 
         }
@@ -45,21 +49,25 @@ namespace WebApplication1
         public void Add(RegRecord regRecord)
         {
             regDic.Add(regRecord.serialNumber, regRecord);
+            WriteToFile();
         }
         public string Remove(string serialNumber)
         {
             if (regDic.ContainsKey(serialNumber))
             {
                 regDic.Remove(serialNumber);
+                WriteToFile();
                 return "成功删除";
             }
             else
+            {
+                WriteToFile();
                 return "不存在此用户";
-
+            }
         }
         public RegRecord GetUser(string serialNumber)
         {
-                return regDic[serialNumber];
+            return regDic[serialNumber];
         }
 
         public bool Contains(string serialNumber)
@@ -69,22 +77,16 @@ namespace WebApplication1
 
         public bool ContainsUserName(string userName)
         {
-            ReadFromFile();
-            foreach(RegRecord regRecord in regDic.Values)
+            foreach (RegRecord record in regDic.Values)
             {
-                if(regRecord.userName.Equals(userName))
-                {
-                    return false;
-                }
+                if (record.userName == userName) return true;
             }
-            return true;
+            return false;
         }
 
-        public string GetAllinfo()
+        public List<RegRecord> GetAllinfo()
         {
-            ReadFromFile();
-            string json = JsonConvert.SerializeObject(regDic);
-            return json;
+            return regDic.Values.ToList();
         }
     }
 }

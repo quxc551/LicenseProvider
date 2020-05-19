@@ -59,21 +59,8 @@ namespace WebApplication1
 
         public Authenticate()
         {
-            //string a = Registe("wang", "1", "1");
-           // FileStream fs = new FileStream("RUser.db", FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite);
-            //StreamReader reader= new StreamReader(fs);
             registedUser.ReadFromFile();
-            registedUser.WriteToFile();
 
-            //registedUser.ReadFromFile();
-            //while(!reader.EndOfStream)
-            //{
-            //    string regRecord = reader.ReadLine();
-            //    users.Add(new UserData(regRecord.Split('\0')));
-            //}
-
-
-            // OnDataRecv callback = new OnDataRecv(ProcessData);
             Thread th = new Thread(UDPListener);
             th.Start();
         }
@@ -87,23 +74,21 @@ namespace WebApplication1
         /// <returns>序列号</returns>
         public string Registe(string userName, string password, int type)
         {
-            if(registedUser.ContainsUserName(userName))
+            if (registedUser.ContainsUserName(userName))
             {
                 return "用户已存在";
             }
-            
+
             string serialNumber = string.Empty;
             do
             {
                 for (int i = 0; i < 10; ++i)
                     serialNumber += new Random().Next(1, 9).ToString();
-
             } while (registedUser.Contains(serialNumber));
+
             RegRecord regRecord1 = new RegRecord(userName, password, serialNumber, type);
-            registedUser.ReadFromFile();
             registedUser.Add(regRecord1);
             registedUser.WriteToFile();
-
             return serialNumber;
         }
 
@@ -114,98 +99,31 @@ namespace WebApplication1
         /// <returns>令牌</returns>
         public string LogIn(string serialNumber)
         {
-            registedUser.ReadFromFile();
             if (registedUser.Contains(serialNumber))
             {
                 var header = new
                 {
-                    typ = "JWT",
-                    alg = "HS256"
+                    typ = "JWT", //type
+                    alg = "HS256" //algorithm
                 };
                 var payload = new
                 {
-                    iat = DateTime.Now.AddHours(10),
-                    userName = registedUser.GetUser(serialNumber).userName,
-                    id = Guid.NewGuid()
+                    iss = "一Ping就通",  //Issuer
+                    iat = DateTime.Now, //Issued At
+                    aud = registedUser.GetUser(serialNumber).userName, //Audience
+                    exp = DateTime.Now.AddMinutes(10), //Expiration Time
+                    jti = Guid.NewGuid() //JWT ID
                 };
-                string part1 = Convert.ToBase64String(Encoding.Default.GetBytes(JsonConvert.SerializeObject(header)));
-                string part2 = Convert.ToBase64String(Encoding.Default.GetBytes(JsonConvert.SerializeObject(payload)));
-                string res = part1 + part2 ;
-                HMACSHA256 maker = new HMACSHA256(System.Text.Encoding.Default.GetBytes(secret));
-                string signature = Encoding.Default.GetString(maker.ComputeHash(Encoding.Default.GetBytes(res)));
-                string result = $"{part1}.{part2}.{signature}";
-                return result;
+                string part1 = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(header)));
+                string part2 = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(payload)));
+                string res = $"{part1}.{part2}";
+                HMACSHA256 maker = new HMACSHA256(Encoding.UTF8.GetBytes(secret));
+                string signature = Convert.ToBase64String(maker.ComputeHash(Encoding.UTF8.GetBytes(res)));
+                string jwt = $"{part1}.{part2}.{signature}";
+                return jwt;
             }
             else
                 return null;
-
-            //int pos = users.FindIndex(e => e.serialNumber == serialNumber);
-            //if (pos == -1)
-            //{
-            //    return null;
-            //}
-
-            //else
-            //{               
-            //    var header = new
-            //    {
-            //        typ = "JWT",
-            //        alg = "HS256"
-            //    };
-            //    var payload = new
-            //    {
-            //        iat = DateTime.Now,
-            //        exp = 1800,
-            //        userName = users[pos].userName,
-            //        id = Guid.NewGuid()
-            //    };
-
-            //    //将每个用户下的guid号记录到AuthorizationData.txt中
-            //    FileStream fs = new FileStream("RUser.db", FileMode.OpenOrCreate, FileAccess.Read, FileShare.ReadWrite);
-            //    StreamReader reader = new StreamReader(fs);
-            //    StreamWriter writer = new StreamWriter("D:\\AuthorizationData.txt");
-            //    int FilLines = 0;
-            //    int line = 0;
-            //    while (!reader.EndOfStream)
-            //    {
-            //        string AutRecord = reader.ReadLine();
-            //        ++FilLines;
-            //        if (AutRecord.Substring(0, AutRecord.IndexOf('\0') - 1).Equals(payload.id))
-            //            line= FilLines;
-            //    }
-            //    if (line==0)
-            //    {
-            //        writer.WriteLine(payload.userName + '\0' + payload.id);
-            //    }
-            //    else
-            //    {
-            //        string[] str = File.ReadAllLines("D:\\AuthorizationData.txt");
-            //        string[] str2 = str[line].Split('\0');
-            //        int i = 1;
-            //        for (;i<str2.Length;++i)
-            //        {
-            //            if (str2[i].Equals(payload.id)) break;
-            //        }
-            //        if (i == str2.Length)
-            //        {
-            //            str[line] += '\0' + payload.id.ToString();
-            //        }
-            //        File.WriteAllText("D:\\AuthorizationData.txt", string.Empty);
-            //        for(int j = 0; j < str.Length; ++j)
-            //        {
-            //            writer.WriteLine(str[j]);
-            //        }
-            //    }
-            //    reader.Close();
-            //    writer.Close();
-
-            //    string part1 = Convert.ToBase64String(Encoding.Default.GetBytes(JsonConvert.SerializeObject(header)));
-            //    string part2 = Convert.ToBase64String(Encoding.Default.GetBytes(JsonConvert.SerializeObject(payload)));
-            //    string res = part1 + part2 + secret;
-            //    HMACSHA256 maker = new HMACSHA256();
-            //    string signature = Encoding.Default.GetString(maker.ComputeHash(Encoding.Default.GetBytes(res)));
-            //    return part1 + part2 + signature;
-            //}
         }
 
         public void UDPListener(object obj)
@@ -242,11 +160,11 @@ namespace WebApplication1
         {
             if (token == null)
                 token = "";
-            byte[] sendbuffer = Encoding.Default.GetBytes(token);
+            byte[] sendbuffer = Encoding.UTF8.GetBytes(token);
             client.Send(sendbuffer, sendbuffer.Length, iP);
         }
 
-        public string GetUserInfo()
+        public List<RegRecord> GetUserInfo()
         {
             return registedUser.GetAllinfo();
         }

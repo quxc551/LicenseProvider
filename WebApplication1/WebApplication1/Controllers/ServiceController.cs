@@ -28,59 +28,81 @@ namespace WebApplication1.Controllers
         {
             this.authenticate = authenticate;
             this.authorize = authorize;
+        }
 
+        [HttpGet]
+        [Route("~/api/test")]
+        public ActionResult Test()
+        {
+            return Ok(new
+            {
+                success = true,
+                msg = "测试成功"
+            });
+        }
+
+        [HttpPost]
+        [Route("~/api/getLicenseStatus")]
+        public ActionResult GetLicenseStatus()
+        {
+            List<RegRecord> records = authenticate.GetUserInfo();
+            return Ok(new
+            {
+                success = true,
+                msg = "",
+                data = records.Select(e => new
+                {
+                    e.userName,
+                    e.serialNumber,
+                    usingCount = authorize.UserCountByName(e.userName),
+                    licenseCount = 10
+                })
+            });
         }
 
         [HttpPost]
         [Route("~/api/regist")]
         public ActionResult GetToRegist()
         {
-            string userName = Payload["firstName"];
+            string userName = Payload["userName"];
             string password = Payload["password"];
             string type = Payload["type"];
             //string userName=Payload[""]
             string result=authenticate.Registe(userName, password, int.Parse(type));
             if(result==("用户已存在"))
             {
-                return Ok(new 
+                return Ok(new
                 {
-                    success=false,
-                    msg=result,
-                    license=""
-              
-                }
-                    );
-                
+                    success = false,
+                    msg = result,
+                    license = ""
+
+                });
             }
             else
             {
                 return Ok(new
                 {
-                    success = false,
+                    success = true,
                     msg = "注册成功",
                     license = result
-                }
-                );
+                });
             }
-
-
         }
 
         [HttpPost]
-        [Route("~/api/getUsers")]
-
+        [Route("~/api/getRegList")]
         public ActionResult GetRegistInfo()
         {
-            string AllUser = authenticate.GetUserInfo();
             return Ok(new
             {
                 success = true,
                 msg = "注册信息",
-                data = AllUser
-
-            }
-                ) ;
+                data = authenticate.GetUserInfo()
         }
+            );
+        }
+
         [HttpPost]
         [Route("~/api/delUsers")]
         public ActionResult DeleteUser()
@@ -88,14 +110,13 @@ namespace WebApplication1.Controllers
             string license = Payload["license"];
 
             string result = authenticate.DeleteUser(license);
-            if(result=="不存在此用户")
+            if (result == "不存在此用户")
             {
                 return Ok(new
                 {
                     success = false,
                     msg = result
-                }
-                ) ;
+                });
             }
             else
             {
@@ -103,11 +124,8 @@ namespace WebApplication1.Controllers
                 {
                     success = true,
                     msg = result
-
-                }
-                    ) ;
+                });
             }
-
         }
 
         [HttpPost]
@@ -121,8 +139,6 @@ namespace WebApplication1.Controllers
                 data = authorize.GetUserList()
             });
         }
-
-
     }
 
 }
