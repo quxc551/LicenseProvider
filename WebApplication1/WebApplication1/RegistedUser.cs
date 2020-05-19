@@ -14,13 +14,14 @@ namespace WebApplication1
         public string password;
         public string serialNumber;
         public int type;
-
-        public RegRecord(string Name, string word, string Number, int types)
+        public int AvailableTime;
+        public RegRecord(string Name, string word, string Number, int types,int time)
         {
             userName = Name;
             password = word;
             serialNumber = Number;
             type = types;
+            AvailableTime = time;
         }
     }
     public class RegistedUser

@@ -67,8 +67,9 @@ namespace WebApplication1.Controllers
             string userName = Payload["userName"];
             string password = Payload["password"];
             string type = Payload["type"];
+            string time = Payload["time"];
             //string userName=Payload[""]
-            string result=authenticate.Registe(userName, password, int.Parse(type));
+            string result=authenticate.Registe(userName, password, int.Parse(type),int.Parse(time));
             if(result==("用户已存在"))
             {
                 return Ok(new
