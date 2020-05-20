@@ -27,6 +27,7 @@ namespace WebApplication1
         }
         public List<UserInfo> GetUserList()
         {
+            Clean();
             List<UserInfo> temp = new List<UserInfo>();
             foreach (var value in userList.Values)
             {
@@ -128,13 +129,14 @@ namespace WebApplication1
         /// </summary>
         public void Clean()
         {
-            foreach (List<UserInfo> userInfos in userList.Values)
+            ReadFromFile();
+            foreach (string number in userList.Keys)
             {
-                for (int i = userInfos.Count - 1; i > 0; i--)
+                for (int i = userList[number].Count - 1; i >= 0; i--)
                 {
-                    if (userInfos[i].expiringTime < DateTime.Now)
+                    if (userList[number][i].expiringTime < DateTime.Now)
                     {
-                        userInfos.Remove(userInfos[i]);
+                        userList[number].RemoveAt(i);
                     }
                 }
             }
