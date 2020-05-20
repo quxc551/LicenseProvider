@@ -96,7 +96,6 @@ namespace WebApplication1
                 UpdateUser(message.token);
             }
 
-
         }
 
         public int UserCountByName(string name)
@@ -187,7 +186,7 @@ namespace WebApplication1
         }
 
         //删除的子用户
-        private void DeleteSubUser(string token)
+        public void DeleteSubUser(string token)
         {
             if (token != "" && VerifyToken(token))
             {
@@ -196,6 +195,10 @@ namespace WebApplication1
             }
         }
 
+        public void KickSubUser(string userName,string userId)
+        {
+            userRuntime.DeleteSubUser(userName, userId);
+        }
         public void UpdateUser(string token)
         {
             string[] msgs = token.Split(".");

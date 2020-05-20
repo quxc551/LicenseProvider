@@ -140,6 +140,21 @@ namespace WebApplication1.Controllers
                 data = authorize.GetUserList()
             });
         }
+
+        [HttpPost]
+        [Route("~/api/kickuser")]
+        public ActionResult KickUser()
+        {
+            string userName = Payload["userName"];
+            string userId = Payload["userId"];
+            authorize.KickSubUser(userName, userId);
+            return Ok(new
+            {
+                success = true,
+                msg = ""
+            }) ;
+
+        }
     }
 
 }
