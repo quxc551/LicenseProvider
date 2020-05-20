@@ -72,7 +72,7 @@ namespace WebApplication1
         /// <param name="password">密码</param>
         /// <param name="type">许可证类型</param>
         /// <returns>序列号</returns>
-        public string Registe(string userName, string password, int type)
+        public string Registe(string userName, string password, int type,int time)
         {
             if (registedUser.ContainsUserName(userName))
             {
@@ -86,7 +86,8 @@ namespace WebApplication1
                     serialNumber += new Random().Next(1, 9).ToString();
             } while (registedUser.Contains(serialNumber));
 
-            RegRecord regRecord1 = new RegRecord(userName, password, serialNumber, type);
+            RegRecord regRecord1 = new RegRecord(userName, password, serialNumber, type,time);
+            registedUser.ReadFromFile();
             registedUser.Add(regRecord1);
             registedUser.WriteToFile();
             return serialNumber;
@@ -111,7 +112,7 @@ namespace WebApplication1
                     iss = "一Ping就通",  //Issuer
                     iat = DateTime.Now, //Issued At
                     aud = registedUser.GetUser(serialNumber).userName, //Audience
-                    exp = DateTime.Now.AddMinutes(10), //Expiration Time
+                    exp = DateTime.Now.AddMinutes(registedUser.GetUser(serialNumber).AvailableTime), //Expiration Time
                     jti = Guid.NewGuid() //JWT ID
                 };
                 string part1 = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(header)));
