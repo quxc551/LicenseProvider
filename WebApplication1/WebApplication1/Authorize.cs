@@ -82,9 +82,9 @@ namespace WebApplication1
         {
             char type = message.token[0];
             string Realtoken = message.token.Remove(0, 2);
+            message.token = Realtoken;
             if (type == '1')//请求授权信号
             {
-                message.token = Realtoken;
                 SendResult(message);
             }
             if (type == '2')//收到正常结束信号
