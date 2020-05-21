@@ -12,7 +12,7 @@ using WebApplication1;
 namespace WebApplication1
 {
 
-    public class ClientMessage
+    public struct ClientMessage
     {
         /// <summary>
         /// 客户端地址信息
@@ -134,7 +134,7 @@ namespace WebApplication1
             while (true)//持续监听端口
             {
 
-                ClientMessage message = getSerialNumber();
+                ClientMessage message = GetSerialNumber();
                 ProcessData(message);
             }
         }
@@ -143,11 +143,11 @@ namespace WebApplication1
         {
             string serialNum = clientMessage.serialNum;
             string token = LogIn(serialNum);
-            sentToken(token, clientMessage.clientIPEndPoint);
+            SentToken(token, clientMessage.clientIPEndPoint);
         }
 
         //获得用户注册后的序列号
-        public ClientMessage getSerialNumber()
+        public ClientMessage GetSerialNumber()
         {
             IPEndPoint ip = new IPEndPoint(IPAddress.Any, 0);
             byte[] recvBuffer = new byte[11];
@@ -157,7 +157,7 @@ namespace WebApplication1
         }
 
         //将令牌发送到客户端
-        public void sentToken(string token, IPEndPoint iP)
+        public void SentToken(string token, IPEndPoint iP)
         {
             if (token == null)
                 token = "";
