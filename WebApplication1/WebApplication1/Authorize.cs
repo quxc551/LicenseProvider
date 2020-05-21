@@ -12,7 +12,7 @@ using Newtonsoft.Json;
 namespace WebApplication1
 {
 
-    public class ClientMessage2
+    public struct ClientMessage2
     {
         /// <summary>
         /// 客户端地址信息
@@ -64,7 +64,7 @@ namespace WebApplication1
             byte[] recvBuffer = new byte[1024];
             IPEndPoint ip = new IPEndPoint(IPAddress.Any, 0);
             recvBuffer = client.Receive(ref ip);
-            ClientMessage2 message = new ClientMessage2(ip, Encoding.Default.GetString(recvBuffer));
+            ClientMessage2 message = new ClientMessage2(ip, Encoding.UTF8.GetString(recvBuffer));
             return message;
         }
 
