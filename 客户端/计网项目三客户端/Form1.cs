@@ -16,7 +16,7 @@ namespace 计网项目三客户端
 {
     public partial class Form1 : Form
     {
-        AskLicense clientside;
+        AskLicense clientside = new AskLicense("4685825321");
         public Form1()
         {
             InitializeComponent();
@@ -24,7 +24,6 @@ namespace 计网项目三客户端
 
         private void Button1_Click(object sender, EventArgs e)
         {
-            clientside = new AskLicense("4685825321");
             textBox1.Text = clientside.LogIn().ToString();
         }
 
