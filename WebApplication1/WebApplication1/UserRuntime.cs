@@ -93,12 +93,28 @@ namespace WebApplication1
 
         public void DeleteSubUser(UserInfo userInfo)
         {
+            ReadFromFile();
             if (userList.ContainsKey(userInfo.userName))
             {
                 int index = userList[userInfo.userName].FindIndex(e => e.userID == userInfo.userID);
                 if (index > -1)
                 {
                     userList[userInfo.userName].RemoveAt(index);
+                }
+            }
+            WriteToFile();
+        }
+
+        public void DeleteSubUser(string userName,string userId)
+        {
+            ReadFromFile();
+            if (userList.ContainsKey(userName))
+            {
+                Guid g = new Guid(userId);
+                int index = userList[userName].FindIndex(e => e.userID == g);
+                if (index > -1)
+                {
+                    userList[userName].RemoveAt(index);
                 }
             }
             WriteToFile();
