@@ -75,7 +75,6 @@ namespace WebApplication1
             {
                 ClientMessage2 message = getToken();
                 ProcessMsg(message);
-                List<UserInfo> a= GetUserList();
             }
         }
 
