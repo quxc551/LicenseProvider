@@ -75,6 +75,7 @@ namespace WebApplication1
             {
                 ClientMessage2 message = getToken();
                 ProcessMsg(message);
+                List<UserInfo> a= GetUserList();
             }
         }
 
@@ -85,6 +86,7 @@ namespace WebApplication1
             message.token = Realtoken;
             if (type == '1')//请求授权信号
             {
+
                 SendResult(message);
             }
             if (type == '2')//收到正常结束信号
@@ -93,7 +95,7 @@ namespace WebApplication1
             }
             if (type == '3')//用户更新信号
             {
-                UpdateUser(message.token);
+                UpdateUser(message);
             }
 
         }
@@ -199,25 +201,34 @@ namespace WebApplication1
         {
             userRuntime.DeleteSubUser(userName, userId);
         }
-        public void UpdateUser(string token)
+        public void UpdateUser(ClientMessage2 message)
         {
-            string[] msgs = token.Split(".");
+            string[] msgs = message.token.Split(".");
             string token1;
             string token2;
-            if (msgs.Length == 5)
+            byte[] sendBuffer = Encoding.Default.GetBytes("true");
+            if (msgs.Length == 6)
             {
                 token1 = $"{msgs[0]}.{msgs[1]}.{msgs[2]}";
                 token2 = $"{msgs[3]}.{msgs[4]}.{msgs[5]}";
                 if (VerifyToken(token1) && VerifyToken(token2))
                 {
                     UserInfo userInfo1 = DecodeToken(token1);
-
                     UserInfo userInfo2 = DecodeToken(token2);
                     userRuntime.UpdateUserState(userInfo1, userInfo2);
                 }
+                else
+                {
+                    sendBuffer = Encoding.Default.GetBytes("false");
 
+                }
             }
-
+            else
+            {
+                sendBuffer = Encoding.Default.GetBytes("true");
+            }
+            IPEndPoint ip =message.clientIPEndPoint;
+            client.Send(sendBuffer, sendBuffer.Length, ip);
         }
 
         /// <summary>
