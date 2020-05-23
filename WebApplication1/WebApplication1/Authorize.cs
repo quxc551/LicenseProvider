@@ -85,16 +85,19 @@ namespace WebApplication1
             message.token = Realtoken;
             if (type == '1')//请求授权信号
             {
-
                 SendResult(message);
             }
             if (type == '2')//收到正常结束信号
             {
-                DeleteSubUser(message.token);
+                DeleteSubUser(message);
             }
             if (type == '3')//用户更新信号
             {
                 UpdateUser(message);
+            }
+            if(type=='4')//获取用户是否被授权
+            {
+                GetAuthorizeState(message);
             }
 
         }
@@ -187,13 +190,21 @@ namespace WebApplication1
         }
 
         //删除的子用户
-        public void DeleteSubUser(string token)
+        public void DeleteSubUser(ClientMessage2 message)
         {
-            if (token != "" && VerifyToken(token))
+            byte[] sendBuffer = Encoding.Default.GetBytes("true");
+            if (message.token != "" && VerifyToken(message.token))
             {
-                UserInfo userInfo = DecodeToken(token);
+                UserInfo userInfo = DecodeToken(message.token);
                 userRuntime.DeleteSubUser(userInfo);
             }
+            else
+            {
+                sendBuffer = Encoding.Default.GetBytes("false");
+            }
+            IPEndPoint ip = message.clientIPEndPoint;
+            client.Send(sendBuffer, sendBuffer.Length, ip);
+
         }
 
         public void KickSubUser(string userName,string userId)
@@ -257,6 +268,28 @@ namespace WebApplication1
         public List<UserInfo> GetUserList()
         {
             return userRuntime.GetUserList();
+        }
+
+        public void GetAuthorizeState(ClientMessage2 message)
+        {
+            byte[] sendBuffer;
+            if (message.token != "" && VerifyToken(message.token))
+            {
+                UserInfo userInfo = DecodeToken(message.token);
+                if(userRuntime.GetUserState(userInfo))
+                {
+                    sendBuffer = Encoding.Default.GetBytes("true");
+                }
+                else
+                {
+                    sendBuffer = Encoding.Default.GetBytes("false");
+                }
+            }
+            else
+                sendBuffer = Encoding.Default.GetBytes("false");
+
+            IPEndPoint ip = message.clientIPEndPoint;
+            client.Send(sendBuffer, sendBuffer.Length, ip);
         }
     }
 }
