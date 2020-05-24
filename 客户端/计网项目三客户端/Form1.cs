@@ -16,7 +16,7 @@ namespace 计网项目三客户端
 {
     public partial class Form1 : Form
     {
-        AskLicense clientside= new AskLicense("4685825321");
+        AskLicense clientside = new AskLicense("6352342471");
         public Form1()
         {
             InitializeComponent();

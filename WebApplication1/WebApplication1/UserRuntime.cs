@@ -145,7 +145,6 @@ namespace WebApplication1
         /// </summary>
         public void Clean()
         {
-            ReadFromFile();
             foreach (string number in userList.Keys)
             {
                 for (int i = userList[number].Count - 1; i >= 0; i--)

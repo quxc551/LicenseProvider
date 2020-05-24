@@ -13,8 +13,8 @@ namespace 计网项目三客户端
 {
     public class AskLicense
     {
-        private static IPEndPoint ip2 = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8910);
-        private static IPEndPoint ip3 = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8888);
+        private static IPEndPoint ip2 = new IPEndPoint(IPAddress.Parse("47.112.154.147"), 8910);
+        private static IPEndPoint ip3 = new IPEndPoint(IPAddress.Parse("47.112.154.147"), 8888);
         private byte[] msg= new byte[1024];
         private UdpClient client = new UdpClient();
         public string jwt = string.Empty;

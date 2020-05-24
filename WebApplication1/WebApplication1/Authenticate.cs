@@ -59,8 +59,6 @@ namespace WebApplication1
 
         public Authenticate()
         {
-            registedUser.ReadFromFile();
-
             Thread th = new Thread(UDPListener);
             th.Start();
         }
@@ -87,7 +85,6 @@ namespace WebApplication1
             } while (registedUser.Contains(serialNumber));
 
             RegRecord regRecord1 = new RegRecord(userName, password, serialNumber, type,time);
-            registedUser.ReadFromFile();
             registedUser.Add(regRecord1);
             registedUser.WriteToFile();
             return serialNumber;
