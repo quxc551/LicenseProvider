@@ -13,6 +13,7 @@ public struct UserInfo
     public DateTime expiringTime;
     public string userName;
     public Guid userID;
+    public string limit;
 }
 
 namespace WebApplication1
@@ -70,7 +71,8 @@ namespace WebApplication1
                 else
                 {
                     //看授权数是否已满
-                    if (userList[userInfo.userName].Count < 10)
+                    int limit = int.Parse(userInfo.limit);
+                    if (userList[userInfo.userName].Count < limit)
                     {
                         userList[userInfo.userName].Add(userInfo);
                         return true;
