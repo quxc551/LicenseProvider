@@ -157,5 +157,26 @@ namespace WebApplication1
             }
             WriteToFile();
         }
+
+        /// <summary>
+        /// 获取用户是否被授权
+        /// </summary>
+        public bool GetUserState(UserInfo userInfo)
+        {
+            Clean();
+            if (userList.ContainsKey(userInfo.userName))
+            {
+                //检查该用户是否已经被授权
+                int index = userList[userInfo.userName].FindIndex(e => e.userID == userInfo.userID);
+                if (index > -1)
+                {
+                    return true;
+                }
+                else
+                    return false;
+            }
+            else
+                return false;
+        }
     }
 }

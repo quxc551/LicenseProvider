@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -22,6 +23,7 @@ namespace 计网项目三客户端
         public AskLicense(string serialNumber)
         {
             this.serialNumber = serialNumber;
+            ReadFromFile();
         }
 
         private string GetNewJWT()
@@ -99,6 +101,21 @@ namespace 计网项目三客户端
                 }
             }
             return false;
+        }
+
+        public void ReadFromFile(string filepath="SaveFile.dat")
+        {
+            if(File.Exists(filepath))
+            {
+                jwt = File.ReadAllText(filepath);
+            }
+            
+
+        }
+        
+        public void WriteToFile(string filepath="SaveFile.dat")
+        {
+            File.WriteAllText(filepath, jwt);
         }
     }
 }
