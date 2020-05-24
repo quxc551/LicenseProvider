@@ -171,8 +171,7 @@ namespace WebApplication1
             {
                 expiringTime = payload.exp,
                 userName = payload.aud,
-                userID = payload.jti,
-                limit = payload.type
+                userID = payload.jti
             };
             return u;
         }

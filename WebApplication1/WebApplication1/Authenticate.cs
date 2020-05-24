@@ -60,6 +60,7 @@ namespace WebApplication1
         public Authenticate()
         {
             registedUser.ReadFromFile();
+
             Thread th = new Thread(UDPListener);
             th.Start();
         }
@@ -112,8 +113,7 @@ namespace WebApplication1
                     iat = DateTime.Now, //Issued At
                     aud = registedUser.GetUser(serialNumber).userName, //Audience
                     exp = DateTime.Now.AddMinutes(registedUser.GetUser(serialNumber).AvailableTime), //Expiration Time
-                    jti = Guid.NewGuid(), //JWT ID
-                    type = registedUser.GetUser(serialNumber).type.ToString()
+                    jti = Guid.NewGuid() //JWT ID
                 };
                 string part1 = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(header)));
                 string part2 = Convert.ToBase64String(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(payload)));
